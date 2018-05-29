@@ -5,6 +5,7 @@ var _ = require ('underscore');
 var utils = require('util');
 var events = require('events');
 utils.inherits(Printer, events.EventEmitter);
+const osLocale = require('os-locale');
 
 /**
  * Describes the parameter options accepted by lp
@@ -279,12 +280,21 @@ function Printer(name) {
 }
 
 Printer.list = function() {
+    var locale = osLocale.sync();
   return parseStdout(spawnSync('lpstat', ['-p']).stdout)
     .filter(function(line) {
-      return line.match(/^printer/);
+        if(locale === 'es_EC'){
+          return line.match(/^la impresora/);
+        } else {
+          return line.match(/^printer/);
+        }
     })
     .map(function(printer) {
-      return printer.match(/^printer (\S+)/)[1];
+        if(locale === 'es_EC'){
+            return printer.match(/^la impresora (\S+)/)[1];            
+        } else {
+            return printer.match(/^printer (\S+)/)[1];
+        }
     });
 };
 
